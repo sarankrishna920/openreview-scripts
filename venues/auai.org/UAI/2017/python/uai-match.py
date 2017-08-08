@@ -8,7 +8,7 @@ import argparse
 import csv
 import openreview
 import match_utils
-import openreview_matcher
+#import openreview_matcher
 from collections import defaultdict
 from uaidata import *
 
@@ -61,6 +61,7 @@ matching_configuration = {
     }
 }
 
+'''
 ## Solve the matcher
 matcher = openreview_matcher.Matcher(group=group, papers=papers, metadata=paper_metadata, config=matching_configuration)
 assignments = matcher.solve()
@@ -72,6 +73,13 @@ with open(outfile, 'w') as o:
     csvwriter = csv.writer(o)
     for a in assignments:
         csvwriter.writerow([a[0].encode('utf-8'),a[1]])
+'''
+assignments = []
+with open(outdir + '/uai-assignments-redesigned.csv','r') as assignmentfile:
+    csvreader = csv.reader(assignmentfile)
+    for row in csvreader:
+        assignments.append((row[0], int(row[1])))
+
 
 ## Post a note with the configuration and assignments for later use
 forum_by_number = {n.number: n.forum for n in papers}

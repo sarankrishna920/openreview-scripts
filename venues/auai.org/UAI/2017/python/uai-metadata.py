@@ -7,7 +7,7 @@ import openreview
 from uaidata import *
 import uai_features
 
-from openreview_matcher.metadata import generate_metadata
+#from openreview_matcher.metadata import generate_metadata
 
 from openreview_matcher import utils
 
@@ -25,9 +25,11 @@ client = openreview.Client(baseurl=args.baseurl, username=args.username, passwor
 
 download = './metadata' if args.download == None else args.download
 
+'''
 print "getting notes..."
 papers = client.get_notes(invitation='auai.org/UAI/2017/-/blind-submission')
 program_committee = client.get_group('auai.org/UAI/2017/Program_Committee')
+'''
 
 if args.overwrite:
     print "erasing old metadata..."
@@ -39,6 +41,7 @@ if args.overwrite:
     for r in reviewer_metadata: client.delete_note(r)
     for a in areachair_metadata: client.delete_note(a)
 
+'''
 print "getting expertise..."
 reviewer_expertise_notes = client.get_notes(invitation = CONFERENCE + '/-/Reviewer_Expertise')
 areachair_expertise_notes = client.get_notes(invitation = CONFERENCE + '/-/SPC_Expertise')
@@ -125,6 +128,13 @@ utils.save_obj(
         'areachair_metadata': new_areachair_metadata
     },
     download)
+'''
+
+# this is a workaround for zach
+data = utils.load_obj(download)
+new_paper_metadata = data['paper_metadata']
+new_reviewer_metadata = data['reviewer_metadata']
+new_areachair_metadata = data['areachair_metadata']
 
 post_notes = raw_input("Would you like to post the metadata notes? (y/[n]): ")
 
