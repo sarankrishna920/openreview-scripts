@@ -7,7 +7,7 @@ Initializes the structures used for paper/user metadata
 import argparse
 import csv
 import openreview
-import match_utils
+from openreview_matcher import utils
 #import openreview_matcher
 from collections import defaultdict
 from uaidata import *
@@ -33,7 +33,7 @@ else:
     datafile = args.data
 
 try:
-    data = match_utils.load_obj(datafile)
+    data = utils.load_obj(datafile)
     group = data['user_groups'][args.group]
     papers = data['papers']
     paper_metadata = data['paper_metadata']
