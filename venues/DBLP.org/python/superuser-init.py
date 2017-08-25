@@ -3,77 +3,39 @@
 """
 
 This is the initialization script for dblp.org
-added dblp directory and tutorial section
-
-It should only be run ONCE to kick off the conference. It can only be run by the Super User.
 
 """
 
 ## Import statements
 import argparse
-from openreview import *
+import openreview
 import config
 
 ## Handle the arguments
 parser = argparse.ArgumentParser()
 parser.add_argument('--baseurl', help="base URL")
-parser.add_argument('--overwrite',
-                    help="If set to true, overwrites existing groups")
 parser.add_argument('--username')
 parser.add_argument('--password')
 
 args = parser.parse_args()
 
 ## Initialize the client library with username and password
-if args.username != None and args.password != None:
-    openreview = Client(baseurl=args.baseurl, username=args.username, password=args.password)
-else:
-    openreview = Client(baseurl=args.baseurl)
-
-groups = []
-overwrite = True if (
-    args.overwrite != None and args.overwrite.lower() == 'true') else False
+client = openreview.Client(baseurl=args.baseurl, username=args.username, password=args.password)
 
 
-def overwrite_allowed(groupid):
-    if not openreview.exists(groupid) or overwrite == True:
-        return True
-    else:
-        return False
+DBLP = client.post_group(openreview.Group(config.BASE,
+             readers=['OpenReview.net'],
+             writers=['OpenReview.net', config.BASE],
+             signatures=['OpenReview.net'],
+             signatories=[config.BASE],
+             members=[]))
 
-
-if openreview.user['id'].lower() == 'openreview.net':
-
-    #########################
-    ##    SETUP GROUPS     ##
-    #########################
-    if overwrite_allowed(config.BASE):
-        DBLP = Group(config.BASE,
-                     readers=['OpenReview.net'],
-                     writers=['OpenReview.net', config.BASE],
-                     signatures=['OpenReview.net'],
-                     signatories=[config.BASE],
-                     members=[])
-        groups.append(DBLP)
-
-    if overwrite_allowed(config.GROUP):
-        DBLP_upload = Group(config.GROUP,
-                            readers=[config.GROUP],
-                            writers=[config.GROUP],
-                            signatures=[config.BASE],
-                            signatories=[config.GROUP],
-                            members=['spector@cs.umass.edu',
-                                     'mbok@cs.umass.edu', 'rbhat@cs.umass.edu',
-                                     'ngovindraja@cs.umass.edu', 'rbhat@umass.edu',
-                                     'asrinivasan@cs.umass.edu'])
-        groups.append(DBLP_upload)
-
-    ## Post the groups
-    for g in groups:
-        print "Posting group: ", g.id
-        openreview.post_group(g)
-
-    reply = {
+import_arguments = {
+    'readers': ['everyone'],
+    'writers': [config.GROUP],
+    'invitees': [config.GROUP],
+    'signatures': [config.BASE],
+    'reply': {
         'forum': None,
         'replyto': None,
         'readers': {
@@ -82,10 +44,10 @@ if openreview.user['id'].lower() == 'openreview.net':
         },
         'signatures': {
             'description': 'How your identity will be displayed with the above content.',
-            'values': [ config.GROUP ]
+            'values': [config.GROUP]
         },
         'writers': {
-            'values':  [ config.GROUP ]
+            'values':  [config.GROUP]
         },
         'content': {
             'title': {
@@ -246,18 +208,40 @@ if openreview.user['id'].lower() == 'openreview.net':
 
         }
     }
+}
 
-    submission_invitation = Invitation(config.INVITATION,
-                                       readers=['everyone'],
-                                       writers=[config.GROUP],
-                                       invitees=[config.GROUP],
-                                       signatures=[config.BASE],
-                                       reply=reply)
+import_invitation = client.post_invitation(openreview.Invitation('DBLP.org/-/Import', **import_arguments))
 
 
-    invitations = [submission_invitation]
+raw_arguments = {
+    'readers': ['everyone'],
+    'writers': [config.GROUP],
+    'invitees': [config.GROUP],
+    'signatures': [config.GROUP],
+    'reply': {
+        'forum': None,
+        'replyto': None,
+        'readers': {
+            'description': 'The users who will be allowed to read the above content.',
+            'values': ['everyone']
+        },
+        'signatures': {
+            'description': 'How your identity will be displayed with the above content.',
+            'values': [config.GROUP]
+        },
+        'writers': {
+            'values':  [config.GROUP]
+        },
+        'content': {
+            '_dblp': {
+                'description': 'raw dblp data',
+                'order': 1,
+                'value-regex': '.*',
+                'required': True
+            }
+        }
+    }
+}
 
-    ## Post the invitations
-    for i in invitations:
-        print "Posting invitation: " + i.id
-        openreview.post_invitation(i)
+
+xml_invitation = client.post_invitation(openreview.Invitation('DBLP.org/-/Raw', **raw_arguments))

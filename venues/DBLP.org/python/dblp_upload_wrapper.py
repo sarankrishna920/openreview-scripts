@@ -38,7 +38,7 @@ then move the stragglers:
 ## Import statements
 import argparse
 import sys
-from openreview import *
+import openreview
 import os
 import traceback
 import glob
@@ -52,10 +52,7 @@ parser.add_argument('--dir', help="Folder containing XML files, all will be proc
 
 args = parser.parse_args()
 ## Initialize the client library with username and password
-if args.username != None and args.password != None:
-    openreview = Client(baseurl=args.baseurl, username=args.username, password=args.password)
-else:
-    openreview = Client(baseurl=args.baseurl)
+client = openreview.Client(baseurl=args.baseurl, username=args.username, password=args.password)
 
 count = 0
 error_count = 0
@@ -64,7 +61,7 @@ for file in glob.glob(args.dir + "/*.xml"):
     try:
         f = open(file)
         xml = f.read()
-        rec = openreview.post_dblp_record({'dblp' : xml})
+        rec = client.post_dblp_record({'dblp' : xml})
         # print rec
         if rec.get('message'):
             print rec['message']
