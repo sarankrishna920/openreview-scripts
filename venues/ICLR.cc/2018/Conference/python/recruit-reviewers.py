@@ -95,7 +95,7 @@ if client.exists(config.REVIEWERS_INVITED) and client.exists(config.REVIEWERS_EM
         for row in csv.reader(csvfile):
             # This assumes a csv file with rows formatted as follows:
             # email_address,~tilde_name1
-            reviewer = row[1]
+            reviewer = row[0]
             print 'reviewer:', reviewer
             client.add_members_to_group(reviewers_invited, reviewer)
 
