@@ -246,7 +246,6 @@ public_comment_params = {
     'reply': {
         'forum': None,
         'replyto': None,
-        'invitation': BLIND_SUBMISSION,
         'readers': {
             'description': 'The users who will be allowed to read the above content.',
             'values-dropdown': ['everyone', REVIEWERS_PLUS, AREA_CHAIRS_PLUS, PROGRAM_CHAIRS]
@@ -302,7 +301,7 @@ official_comment_params = {
             'values-regex': CONF + '.*'
         },
         'writers': {
-            'values-regex': '~.*'
+            'values-regex': CONF + '.*'
         },
         'content':{
             'title': {

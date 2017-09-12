@@ -36,15 +36,17 @@ invitation_configurations = {
         'reference': True
     },
     'Public_Comment': {
-        'byPaper': False,
+        'byPaper': True,
+        'byForum': True,
         'invitees': ['~'],
+        'noninvitees': [maskAuthorsGroup],
         'params': config.public_comment_params
     },
     'Official_Comment': {
         'byPaper': True,
+        'byForum': True,
         'invitees': [maskReviewerGroup, maskAuthorsGroup, maskAreaChairGroup, config.PROGRAM_CHAIRS],
         'signatures': [maskAnonReviewerGroup, maskAuthorsGroup, maskAreaChairGroup, config.PROGRAM_CHAIRS],
-        'byForum': True,
         'params': config.official_comment_params
     },
     'Official_Review': {
@@ -170,7 +172,8 @@ for invitationId in invitations_to_process:
                 for i in invitations:
 
                     i.invitees = prepare_invitees(i.id, invitation_configurations[invitationId]['invitees']) if enable else []
-
+                    if 'noninvitees' in invitation_configurations[invitationId]:
+                        i.noninvitees = prepare_invitees(i.id, invitation_configurations[invitationId]['noninvitees'])
                     result = client.post_invitation(i)
 
                     pp.pprint({'Invitation ID ..': result.id, 'Invitees .......': i.invitees})

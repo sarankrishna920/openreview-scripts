@@ -5,8 +5,11 @@ function() {
     var CONF = 'ICLR.cc/2018/Conference';
     var PROGRAM_CHAIRS = CONF + '/Program_Chairs';
     var AREA_CHAIRS = CONF + '/Area_Chairs';
-    var BLIND_SUBMISSION = CONF + '/-/Blind_Submission';
+    var REVIEWERS = CONF + '/Reviewers';
     var AUTHORS = CONF + '/Authors';
+    var REVIEWERS_PLUS = REVIEWERS + '_and_Higher';
+    var AREA_CHAIRS_PLUS = AREA_CHAIRS + '_and_Higher';
+    var BLIND_SUBMISSION = CONF + '/-/Blind_Submission';
 
     var addRevisionInvitation = {
       id: CONF + '/-/Paper' + note.number + '/Add_Revision',
@@ -145,7 +148,7 @@ function() {
           id: CONF + '/-/Paper' + savedNote.number + '/Withdraw_Paper',
           signatures: [CONF],
           writers: [CONF],
-          invitees: note.content.authorids.concat(note.signatures),
+          invitees: [authorGroupId],
           noninvitees: [],
           readers: ['everyone'],
           reply: {
@@ -165,9 +168,83 @@ function() {
           }
         }
 
+        var publicCommentInvitation = {
+          id: CONF + '/-/Paper' + savedNote.number + '/Public_Comment',
+          signatures: [CONF],
+          writers: [CONF],
+          invitees: ['~'],
+          noninvitees: [authorGroupId],
+          readers: ['everyone'],
+          reply: {
+            forum: savedNote.id,
+            replyto: null,
+            readers: {
+              description: 'The users who will be allowed to read the above content.',
+              'values-dropdown': ['everyone', REVIEWERS_PLUS, AREA_CHAIRS_PLUS, PROGRAM_CHAIRS]
+            },
+            signatures: {
+              description: 'How your identity will be displayed with the above content.',
+              'values-regex': '~.*|\\(anonymous\\)'
+            },
+            writers: {
+              'values-regex': '~.*|\\(anonymous\\)'
+            },
+            content:{
+              title: {
+                order: 0,
+                'value-regex': '.{1,500}',
+                description: 'Brief summary of your comment.',
+                required: true
+              },
+              comment: {
+                order: 1,
+                'value-regex': '[\\S\\s]{1,5000}',
+                description: 'Your comment or reply.',
+                required: true
+              }
+            }
+          }
+        }
+
+        var officialCommentInvitation = {
+          id: CONF + '/-/Paper' + savedNote.number + '/Official_Comment',
+          signatures: [CONF],
+          writers: [CONF],
+          invitees: [reviewerGroupId, authorGroupId, areachairGroupId, PROGRAM_CHAIRS],
+          readers: ['everyone'],
+          reply: {
+            forum: savedNote.id,
+            replyto: null,
+            readers: {
+              description: 'The users who will be allowed to read the above content.',
+              'values-dropdown': ['everyone', REVIEWERS_PLUS, AREA_CHAIRS_PLUS, PROGRAM_CHAIRS]
+            },
+            signatures: {
+              description: 'How your identity will be displayed with the above content.',
+              'values-regex': [reviewerGroupId, authorGroupId, areachairGroupId, PROGRAM_CHAIRS].join('|')
+            },
+            writers: {
+              'values-regex': [reviewerGroupId, authorGroupId, areachairGroupId, PROGRAM_CHAIRS].join('|')
+            },
+            content:{
+              title: {
+                order: 0,
+                'value-regex': '.{1,500}',
+                description: 'Brief summary of your comment.',
+                required: true
+              },
+              comment: {
+                order: 1,
+                'value-regex': '[\\S\\s]{1,5000}',
+                description: 'Your comment or reply.',
+                required: true
+              }
+            }
+          }
+        }
+
         var groupPromises = Promise.all([
           or3client.or3request(or3client.grpUrl, authorGroup, 'POST', token),
-          or3client.or3request(or3client.inviteUrl, withdrawPaperInvitation, 'POST', token),
           or3client.or3request(or3client.grpUrl, reviewerGroup, 'POST', token),
           or3client.or3request(or3client.grpUrl, areachairGroup, 'POST', token),
           or3client.or3request(or3client.grpUrl, anonReviewer1Group, 'POST', token),
@@ -175,6 +252,9 @@ function() {
           or3client.or3request(or3client.grpUrl, anonReviewer3Group, 'POST', token),
           or3client.or3request(or3client.grpUrl, anonReviewer4Group, 'POST', token),
           or3client.or3request(or3client.grpUrl, anonReviewer5Group, 'POST', token),
+          or3client.or3request(or3client.inviteUrl, withdrawPaperInvitation, 'POST', token),
+          or3client.or3request(or3client.inviteUrl, publicCommentInvitation, 'POST', token),
+          or3client.or3request(or3client.inviteUrl, officialCommentInvitation, 'POST', token),
           or3client.addGroupMember(AUTHORS, note.content.authorids.concat(note.signatures), token)
         ]);
 
