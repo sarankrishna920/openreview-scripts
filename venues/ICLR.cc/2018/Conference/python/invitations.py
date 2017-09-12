@@ -52,6 +52,7 @@ invitation_configurations = {
     'Official_Review': {
         'byPaper': True,
         'invitees': [maskReviewerGroup],
+        'signatures': [maskAnonReviewerGroup],
         'byForum': True,
         'byReplyTo': True,
         'params': config.official_review_params
@@ -126,6 +127,7 @@ def get_or_create_invitations(invitationId, overwrite):
 
                 if 'signatures' in invitation_config:
                     new_invitation.reply['signatures']['values-regex'] = prepare_regex(new_invitation.id, invitation_config['signatures'])
+                    new_invitation.reply['writers']['values-regex'] = prepare_regex(new_invitation.id, invitation_config['signatures'])
 
                 invitations.append(client.post_invitation(new_invitation))
             return invitations
