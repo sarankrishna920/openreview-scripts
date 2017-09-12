@@ -102,7 +102,7 @@ if args.assignments:
         "metadata": config.METADATA,
         "minusers": 1,
         "maxusers": 3,
-        "minpapers": 1,
+        "minpapers": 2,
         "maxpapers": 5,
         "weights": {
             "bid_score": 1
@@ -115,7 +115,7 @@ if args.assignments:
         "submission": config.BLIND_SUBMISSION,
         "exclude": [n.forum for n in withdrawn_papers],
         "metadata": config.METADATA,
-        "minusers": 0,
+        "minusers": 1,
         "maxusers": 5,
         "minpapers": 1,
         "maxpapers": 10,
