@@ -117,7 +117,7 @@ SUBMISSION = CONF + '/-/Submission'
 submission_params = {
     'readers': ['everyone'],
     'writers': [CONF],
-    'invitees': [CONF],
+    'invitees': ['~'],
     'signatures': [CONF],
     'process': os.path.join(os.path.dirname(__file__), '../process/submissionProcess.js'),
     'reply': {
@@ -194,7 +194,7 @@ BLIND_SUBMISSION = CONF + '/-/Blind_Submission'
 blind_submission_params = {
     'readers': ['everyone'],
     'writers': [CONF],
-    'invitees': ['~'],
+    'invitees': [CONF],
     'signatures': [CONF],
     'reply': {
         'forum': None,
@@ -298,10 +298,10 @@ official_comment_params = {
         },
         'signatures': {
             'description': 'How your identity will be displayed with the above content.',
-            'values-regex': CONF + '.*'
+            'values-regex': ''
         },
         'writers': {
-            'values-regex': CONF + '.*'
+            'values-regex': ''
         },
         'content':{
             'title': {
@@ -343,10 +343,10 @@ official_review_params = {
         },
         'signatures': {
             'description': 'How your identity will be displayed with the above content.',
-            'values-regex': CONF + '.*'
+            'values-regex': ''
         },
         'writers': {
-            'values-regex': CONF + '.*'
+            'values-regex': ''
         },
         'content':{
             'title': {
@@ -689,9 +689,9 @@ recruit_reviewers_params = {
     'reply': {
         'content': {
             'username': {
-                'description': 'OpenReview username (e.g. ~Alan_Turing1)',
+                'description': 'OpenReview username or email address (e.g. ~Alan_Turing1)',
                 'order': 1,
-                'value-regex': '~.*'
+                'value-regex': '.*'
             },
             'key': {
                 'description': 'Email key hash',
