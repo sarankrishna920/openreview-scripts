@@ -173,7 +173,7 @@ function() {
           signatures: [CONF],
           writers: [CONF],
           invitees: ['~'],
-          noninvitees: [authorGroupId],
+          noninvitees: [authorGroupId, reviewerGroupId, areachairGroupId],
           readers: ['everyone'],
           reply: {
             forum: savedNote.id,

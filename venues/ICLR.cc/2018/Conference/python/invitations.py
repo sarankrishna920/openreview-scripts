@@ -39,7 +39,7 @@ invitation_configurations = {
         'byPaper': True,
         'byForum': True,
         'invitees': ['~'],
-        'noninvitees': [maskAuthorsGroup],
+        'noninvitees': [maskAuthorsGroup, maskReviewerGroup, maskAreaChairGroup],
         'params': config.public_comment_params
     },
     'Official_Comment': {
