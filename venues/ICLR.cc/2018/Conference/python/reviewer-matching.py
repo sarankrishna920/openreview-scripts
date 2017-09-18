@@ -116,7 +116,7 @@ if args.assignments:
         "exclude": [n.forum for n in withdrawn_papers],
         "metadata": config.METADATA,
         "minusers": 1,
-        "maxusers": 5,
+        "maxusers": 1,
         "minpapers": 1,
         "maxpapers": 10,
         "weights": {

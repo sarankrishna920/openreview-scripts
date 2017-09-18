@@ -11,6 +11,19 @@ function() {
     var AREA_CHAIRS_PLUS = AREA_CHAIRS + '_and_Higher';
     var BLIND_SUBMISSION = CONF + '/-/Blind_Submission';
 
+    var getBibtex = function(note) {
+      var firstWord = note.content.title.split(' ')[0].toLowerCase();
+
+      return '@article{\
+          \nanonymous2017' + firstWord + ',\
+          \ntitle={' + note.content.title + '},\
+          \nauthor={Anonymous},\
+          \njournal={International Conference on Learning Representations},\
+          \nyear={2017}\
+      \n}'
+    };
+
+
     var addRevisionInvitation = {
       id: CONF + '/-/Paper' + note.number + '/Add_Revision',
       signatures: [CONF],
@@ -38,7 +51,8 @@ function() {
       readers: ['everyone'],
       content: {
         authors: ['Anonymous'],
-        authorids: ['Anonymous']
+        authorids: ['Anonymous'],
+        _bibtex: getBibtex(note)
       }
     }
 
@@ -81,6 +95,7 @@ function() {
           writers: [CONF],
           members: [],
           readers: [CONF, PROGRAM_CHAIRS, AREA_CHAIRS],
+          nonreaders: [authorGroupId],
           signatories: []
         };
 
@@ -91,6 +106,7 @@ function() {
           writers: [CONF],
           members: [],
           readers: [CONF, PROGRAM_CHAIRS, AREA_CHAIRS, anonReviewer1GroupId],
+          nonreaders: [authorGroupId],
           signatories: [anonReviewer1GroupId]
         };
 
@@ -101,6 +117,7 @@ function() {
           writers: [CONF],
           members: [],
           readers: [CONF, PROGRAM_CHAIRS, AREA_CHAIRS, anonReviewer2GroupId],
+          nonreaders: [authorGroupId],
           signatories: [anonReviewer2GroupId]
         };
 
@@ -111,6 +128,7 @@ function() {
           writers: [CONF],
           members: [],
           readers: [CONF, PROGRAM_CHAIRS, AREA_CHAIRS, anonReviewer3GroupId],
+          nonreaders: [authorGroupId],
           signatories: [anonReviewer3GroupId]
         };
 
@@ -121,6 +139,7 @@ function() {
           writers: [CONF],
           members: [],
           readers: [CONF, PROGRAM_CHAIRS, AREA_CHAIRS, anonReviewer4GroupId],
+          nonreaders: [authorGroupId],
           signatories: [anonReviewer4GroupId]
         };
 
@@ -131,6 +150,7 @@ function() {
           writers: [CONF],
           members: [],
           readers: [CONF, PROGRAM_CHAIRS, AREA_CHAIRS, anonReviewer5GroupId],
+          nonreaders: [authorGroupId],
           signatories: [anonReviewer5GroupId]
         };
 
@@ -141,6 +161,7 @@ function() {
           writers: [CONF],
           members: [],
           readers: [CONF, PROGRAM_CHAIRS, AREA_CHAIRS, areachairGroupId],
+          nonreaders: [authorGroupId],
           signatories: [areachairGroupId]
         };
 
