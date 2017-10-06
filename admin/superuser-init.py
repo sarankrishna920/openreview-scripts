@@ -34,13 +34,18 @@ OPTIONAL KEYWORD ARGUMENTS
 """
 
 def parse_json(file):
+    '''
+    Parses the input file as a JSON with javascript-style comment blocks
+    '''
     json_string = open(os.path.join(os.path.dirname(__file__), file), 'r').read()
     json_parsed = re.sub('\/\*[^*]+\*\/|\s|\n', '', json_string)
     return json.loads(json_parsed)
 
-def build_directory(directory_path):
 
-    # create the subdirectories if they don't exist
+def build_directory(directory_path):
+    '''
+    Creates the directory and subdirectories if they don't exist
+    '''
     for subpath in ['','/python','/webfield','/process','/data']:
         path = '{0}/{1}'.format(directory_path, subpath)
         if not os.path.exists(path):
@@ -49,8 +54,9 @@ def build_directory(directory_path):
 
 
 def generate_file(template_path, directory_path, data, overwrite = False):
-
-    # generate new files from templates
+    '''
+    Generates new files from templates.
+    '''
     ext = '.py' if 'python' in template_path else '.js'
     newfile_path = directory_path + '/' + template_path.replace('.template', ext)
 
@@ -67,6 +73,11 @@ def generate_file(template_path, directory_path, data, overwrite = False):
 
 
 def build_groups(conference_group_id):
+    '''
+    Generates the conference group and its ancestors.
+    Also generates the conference Admin group.
+    '''
+
     # create list of subpaths (e.g. Test.com, Test.com/TestConference, Test.com/TestConference/2018)
     path_components = conference_group_id.split('/')
     paths = ['/'.join(path_components[0:index+1]) for index, path in enumerate(path_components)]
@@ -109,9 +120,10 @@ build_directory(directory_path)
 
 templates = [
     'python/config.template',
-    'python/admin-init.template',
+    'python/admin-init.py',
     'webfield/conferenceWebfield.template',
     'webfield/programchairWebfield.template',
+    #'webfield/areachairWebfield.template',
     'process/submissionProcess.template',
     'process/commentProcess.template',
     'process/officialReviewProcess.template',

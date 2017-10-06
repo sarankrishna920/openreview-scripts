@@ -1,5 +1,6 @@
 var CONFERENCE_ID = '<<CONFERENCE_ID>>';
 var AREA_CHAIR_REGEX = ('<<CONFERENCE_ID>>').replace(/\//g,'\\/').replace(/\./g,'\\.') + '\/Paper(\d+)\/Area_Chair'
+
 // Ajax functions
 var getPaperNumbersfromGroups = function(groups) {
   var re = new RegExp(AREA_CHAIR_REGEX);
