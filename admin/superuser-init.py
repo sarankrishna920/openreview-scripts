@@ -131,8 +131,6 @@ templates = [
     'python/config.template',
     'python/admin-init.py',
     'webfield/conferenceWebfield.template',
-    'webfield/programchairWebfield.template',
-    #'webfield/areachairWebfield.template',
     'process/submissionProcess.template',
     'process/commentProcess.template',
     'process/officialReviewProcess.template',
