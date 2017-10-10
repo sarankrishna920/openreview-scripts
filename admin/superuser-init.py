@@ -21,8 +21,8 @@ REQUIRED KEYWORD ARGUMENTS
         A directory with path exactly equal to the conference group ID
         should already exist before running this script.
 
-    data - a file containing parameters of the conference.
-        See openreview-scripts/admin/conference-template/params.data
+    config - a file containing parameters of the conference.
+        See openreview-scripts/admin/conference-template/config.properties
 
 OPTIONAL KEYWORD ARGUMENTS
     overwrite - if present, overwrites the conference directory.
@@ -34,10 +34,10 @@ OPTIONAL KEYWORD ARGUMENTS
 
 """
 
-def parse_properties(file):
+def parse_properties(file, section):
     config = ConfigParser.RawConfigParser()
     config.read(file)
-    return {key.upper(): value for key, value in config.items('config')}
+    return {key.upper(): value for key, value in config.items(section)}
 
 def build_directories(paths, directory_path):
 
@@ -54,7 +54,7 @@ def build_directories(paths, directory_path):
             os.makedirs(path)
 
 
-def generate_file(template_path, directory_path, data, overwrite = False):
+def generate_file(template_path, directory_path, config, overwrite = False):
     '''
     Generates new files from templates.
     '''
@@ -65,8 +65,8 @@ def generate_file(template_path, directory_path, data, overwrite = False):
         with open(os.path.join(os.path.dirname(__file__), './conference-template/{0}'.format(template_path))) as template:
             template_string = template.read()
 
-        for replacement in data:
-            template_string = template_string.replace('<<{0}>>'.format(replacement), data[replacement])
+        for replacement in config:
+            template_string = template_string.replace('<<{0}>>'.format(replacement), config[replacement])
 
         with open(newfile_path, 'w') as newfile:
             print "writing {0}".format(newfile_path)
@@ -113,9 +113,10 @@ client = openreview.Client(baseurl=args.baseurl, username=args.username, passwor
 directory_path = os.path.join(os.path.dirname(__file__), '../venues/{0}'.format(args.venue))
 conference_group_id = args.venue
 
-# load data
-data = parse_properties(args.config if args.config else directory_path + '/config.properties')
-
+# load config
+config_file = args.config if args.config else directory_path + '/config.properties'
+config = parse_properties(config_file, 'config')
+options = parse_properties(config_file, 'options')
 
 subdirectories = [
     '/python',
@@ -138,7 +139,7 @@ templates = [
 
 # generate new files from templates
 for file in templates:
-    generate_file(file, directory_path, data, overwrite = args.overwrite)
+    generate_file(file, directory_path, config, overwrite = args.overwrite)
 
 groups = build_groups(conference_group_id)
 

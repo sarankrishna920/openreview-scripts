@@ -77,6 +77,14 @@ program_chairs_params = {
     'web': os.path.join(os.path.dirname(__file__), '../webfield/programchairWebfield.js'),
 }
 
+area_chairs_params = {
+    'readers': [CONFERENCE_ID, PROGRAM_CHAIRS, AREA_CHAIRS],
+    'writers': [CONFERENCE_ID],
+    'signatories': [CONFERENCE_ID, AREA_CHAIRS],
+    'signatures': [CONFERENCE_ID],
+    'web': os.path.join(os.path.dirname(__file__), '../webfield/areachairWebfield.js'),
+}
+
 submission_params = {
     'readers': ['everyone'],
     'writers': [CONFERENCE_ID],
