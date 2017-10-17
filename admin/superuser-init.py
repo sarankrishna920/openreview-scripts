@@ -53,7 +53,6 @@ def build_directories(paths, directory_path):
             print "Creating directory {0}".format(path)
             os.makedirs(path)
 
-
 def generate_file(template_path, directory_path, config, overwrite = False):
     '''
     Generates new files from templates.
