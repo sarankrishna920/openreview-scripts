@@ -29,7 +29,7 @@ def build_groups(conference_group_id):
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-v', '--venue', required=True, help = "the full path of the conference group to create.")
-parser.add_argument('--overwrite', action='store_true', help="if true, overwrites the conference directory.")
+parser.add_argument('--overwrite', action='store_true', help="if true, overwrites existing groups.")
 parser.add_argument('--baseurl')
 parser.add_argument('--username')
 parser.add_argument('--password')
@@ -41,8 +41,11 @@ conference_group_id = args.venue
 groups = build_groups(conference_group_id)
 
 for g in sorted([g for g in groups]):
-    print "posting group {0}".format(g)
-    client.post_group(groups[g])
+    if not client.exists(g) or args.overwrite:
+        print "posting group {0}".format(g)
+        client.post_group(groups[g])
+    else:
+        print "group {0} already exists".format(g)
 
 # add admin group to the conference members
 client.add_members_to_group(groups[conference_group_id], conference_group_id + '/Admin')
