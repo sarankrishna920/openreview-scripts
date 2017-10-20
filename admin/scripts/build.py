@@ -33,11 +33,6 @@ def select_templates(templates_dir):
     return templates
 
 def build_directories(paths, templates_dir, conference_dir):
-    # create main directory if it doesn't exist
-    if not os.path.exists(conference_dir):
-        print "Creating directory {0}".format(conference_dir)
-        os.makedirs(conference_dir)
-
     # create the subdirectories if they don't exist
     for subpath in paths:
         path = os.path.join(conference_dir, subpath)
@@ -51,19 +46,17 @@ def build_directories(paths, templates_dir, conference_dir):
         shutil.copyfile(os.path.join(templates_dir, template_file), os.path.join(conference_dir, template_file))
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-v', '--venue', required=True, help = "the full path of the conference group to create.")
-parser.add_argument('-d', '--config', help = "a .properties file containing configuration parameters. This script will automatically look for a file called config.properties in the directory specified by the `--venue` argument.")
+parser.add_argument('-c', '--config', help = "a .properties file containing configuration parameters. This script will automatically look for a file called config.properties in the directory specified by the `--venue` argument.")
 parser.add_argument('--overwrite', action='store_true', help="if true, overwrites the conference directory.")
 parser.add_argument('--baseurl')
 parser.add_argument('--username')
 parser.add_argument('--password')
 args = parser.parse_args()
 
-conference_group_id = args.venue
-conference_dir = os.path.join(os.path.dirname(__file__), '../../venues/{0}'.format(conference_group_id))
+conference_dir = os.path.dirname(args.config)
 
 # load config
-config_file = args.config if args.config else conference_dir + '/config.properties'
+config_file = args.config
 config = parse_properties(config_file, 'config')
 options = parse_properties(config_file, 'options')
 
