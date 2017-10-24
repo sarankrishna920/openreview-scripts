@@ -9,17 +9,17 @@ var CONFERENCE_ID = '<<CONFERENCE_ID>>';
 var INVITATION = CONFERENCE_ID + '/-/<<SUBMISSION_NAME>>';
 
 
-var BLIND_INVITATION = CONFERENCE_ID + '/-/Blind_Submission';
-var RECRUIT_REVIEWERS = CONFERENCE_ID + '/-/Recruit_Reviewers';
+var BLIND_INVITATION = CONFERENCE_ID + '/-/<<BLIND_SUBMISSION_NAME>>';
 var WILDCARD_INVITATION = CONFERENCE_ID + '/-/.*';
-var OFFICIAL_REVIEW_INVITATION = WILDCARD_INVITATION + '/Official_Review';
-var METAREVIEW_INVITATION = WILDCARD_INVITATION + '/Meta_Review';
+var OFFICIAL_REVIEW_INVITATION = WILDCARD_INVITATION + '/<<OFFICIAL_REVIEW_NAME>>';
+var METAREVIEW_INVITATION = WILDCARD_INVITATION + '/<<META_REVIEW_NAME>>';
 
 var ANONREVIEWER_WILDCARD = CONFERENCE_ID + '/Paper.*/AnonReviewer.*';
-var ANONREVIEWER_REGEX = /^ICLR\.cc\/2018\/Conference\/Paper(\d+)\/AnonReviewer(\d+)/;
-
 var AREACHAIR_WILDCARD = CONFERENCE_ID + '/Paper.*/Area_Chair';
-var AREACHAIR_REGEX = /^ICLR\.cc\/2018\/Conference\/Paper(\d+)\/Area_Chair/;
+
+
+var ANONREVIEWER_REGEX = ('<<CONFERENCE_ID>>').replace(/\//g,'\\/').replace(/\./g,'\\.') + '\/Paper(\d+)\/AnonReviewer(\d+)';
+var AREACHAIR_REGEX = ('<<CONFERENCE_ID>>').replace(/\//g,'\\/').replace(/\./g,'\\.') + '\/Paper(\d+)\/Area_Chair'
 
 // Ajax functions
 var getNotes = function(inv) {

@@ -7,11 +7,12 @@ import ConfigParser
 import pprint
 import re
 
-import compile
+from compile import process_params
 from variables import Variables
+from variables import parse_properties
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-d', '--dir', required=True, help = "the full path of the conference group to create.")
+parser.add_argument('-c', '--config', required=True, help = "config.properties file.")
 parser.add_argument('-i', '--invitations', nargs='*')
 parser.add_argument('--enable', action='store_true', help="if present, enables the given invitation")
 parser.add_argument('--disable', action='store_true', help='if present, disables the given invitation')
@@ -22,23 +23,21 @@ parser.add_argument('--password')
 args = parser.parse_args()
 
 client = openreview.Client(baseurl=args.baseurl, username=args.username, password=args.password)
-conference_dir = args.dir
-
-def parse_properties(file, section):
-    config = ConfigParser.RawConfigParser()
-    config.read(file)
-    return {key.upper(): value for key, value in config.items(section)}
 
 # load config
-config_file = os.path.join(conference_dir, 'config.properties')
+config_file = args.config
+conference_dir = os.path.dirname(args.config)
+print 'config_file', config_file
 config = parse_properties(config_file, 'config')
 
 # initialize variables
 variables = Variables()
 variables.init(conference_dir)
 
+invitation_configurations = variables.invitations['by_paper']
+
 if args.invitations == ['all']:
-    invitations_to_process = variables.invitation_configurations.keys()
+    invitations_to_process = invitation_configurations.keys()
 else:
     invitations_to_process = args.invitations
 
@@ -47,10 +46,10 @@ client = openreview.Client(baseurl=args.baseurl, username=args.username, passwor
 pp = pprint.PrettyPrinter(indent=4)
 
 
-papers = client.get_notes(invitation = variables.SUBMISSION_ID)
+papers = client.get_notes(invitation = variables.submission_id)
 
 def get_or_create_invitations(invitationId, overwrite):
-    invitation_config = variables.invitation_configurations[invitationId]
+    invitation_config = invitation_configurations[invitationId]
     if invitation_config['byPaper']:
 
         invitations = client.get_invitations(regex = config['CONFERENCE_ID'] + '/-/Paper.*/' + invitationId, tags = invitation_config.get('tags'))
@@ -61,7 +60,7 @@ def get_or_create_invitations(invitationId, overwrite):
             invitations = []
             for n in papers:
 
-                params, webfield_src, process_src = compile.process_params(invitation_config['params'], config)
+                params, webfield_src, process_src = process_params(invitation_config['params'], config)
                 new_invitation = openreview.Invitation(config['CONFERENCE_ID'] + '/-/Paper{0}/'.format(n.number) + invitationId, **params)
 
                 if webfield_src:
@@ -116,7 +115,7 @@ def prepare_regex(invitationId, members):
 
 for invitationId in invitations_to_process:
     print "processing invitation ", invitationId
-    if invitationId in variables.invitation_configurations:
+    if invitationId in invitation_configurations:
         if args.enable or args.disable:
             enable = args.enable and not args.disable
 
@@ -126,9 +125,9 @@ for invitationId in invitations_to_process:
             if invitations:
                 for i in invitations:
 
-                    i.invitees = prepare_invitees(i.id, variables.invitation_configurations[invitationId]['invitees']) if enable else []
-                    if 'noninvitees' in variables.invitation_configurations[invitationId]:
-                        i.noninvitees = prepare_invitees(i.id, variables.invitation_configurations[invitationId]['noninvitees'])
+                    i.invitees = prepare_invitees(i.id, invitation_configurations[invitationId]['invitees']) if enable else []
+                    if 'noninvitees' in invitation_configurations[invitationId]:
+                        i.noninvitees = prepare_invitees(i.id, invitation_configurations[invitationId]['noninvitees'])
                     result = client.post_invitation(i)
 
                     pp.pprint({'Invitation ID ..': result.id, 'Invitees .......': i.invitees})

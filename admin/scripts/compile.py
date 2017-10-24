@@ -4,11 +4,7 @@ import argparse
 import openreview
 import ConfigParser
 from variables import Variables
-
-def parse_properties(file, section):
-    config = ConfigParser.RawConfigParser()
-    config.read(file)
-    return {key.upper(): value for key, value in config.items(section)}
+from variables import parse_properties
 
 def compile_template(template_path, config):
     '''
@@ -55,8 +51,13 @@ def main():
     variables = Variables()
     variables.init(conference_dir)
 
+    initial_objects = {
+        'groups': variables.groups['initial'],
+        'invitations': variables.invitations['initial'],
+    }
+
     # replace templates with javascript code, then post the groups/invitations
-    for obj_name, openreview_objects in variables.initial_objects.iteritems():
+    for obj_name, openreview_objects in initial_objects.iteritems():
 
         if obj_name == 'groups':
             class_type = openreview.Group

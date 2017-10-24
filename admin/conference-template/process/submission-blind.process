@@ -1,0 +1,217 @@
+function() {
+    // email authors, create revision, withdraw and comment invites
+    // create blind submission and author group
+    var or3client = lib.or3client;
+
+    var CONFERENCE_ID = '<<CONFERENCE_ID>>';
+    var PROGRAM_CHAIRS = CONFERENCE_ID + '/Program_Chairs';
+    var AREA_CHAIRS = CONFERENCE_ID + '/Area_Chairs';
+    var REVIEWERS = CONFERENCE_ID + '/Reviewers';
+    var AUTHORS = CONFERENCE_ID + '/Authors';
+    var BLIND_SUBMISSION = CONFERENCE_ID + '/-/Blind_Submission';
+
+    var getBibtex = function(note) {
+      var firstWord = note.content.title.split(' ')[0].toLowerCase();
+
+      return '@article{\
+          \nanonymous<<YEAR>>' + firstWord + ',\
+          \ntitle={' + note.content.title + '},\
+          \nauthor={Anonymous},\
+          \njournal={<<SUBTITLE>>},\
+          \nyear={2018}\
+      \n}'
+    };
+
+
+    var addRevisionInvitation = {
+      id: CONFERENCE_ID + '/-/Paper' + note.number + '/Add_Revision',
+      signatures: [CONFERENCE_ID],
+      writers: [CONFERENCE_ID],
+      invitees: note.content.authorids.concat(note.signatures),
+      noninvitees: [],
+      readers: ['everyone'],
+      reply: {
+        forum: note.id,
+        referent: note.id,
+        signatures: invitation.reply.signatures,
+        writers: invitation.reply.writers,
+        readers: invitation.reply.readers,
+        content: invitation.reply.content
+      }
+    }
+
+    var blindSubmission = {
+      original: note.id,
+      invitation: BLIND_SUBMISSION,
+      forum: null,
+      parent: null,
+      signatures: [CONFERENCE_ID],
+      writers: [CONFERENCE_ID],
+      readers: ['everyone'],
+      content: {
+        authors: ['Anonymous'],
+        authorids: ['Anonymous'],
+        _bibtex: getBibtex(note)
+      }
+    }
+
+
+
+    or3client.or3request(or3client.inviteUrl, addRevisionInvitation, 'POST', token)
+    .then(result => or3client.or3request(or3client.notesUrl, blindSubmission, 'POST', token))
+    .then(savedNote => {
+      //Send an email to the author of the submitted note, confirming its receipt
+      var mail = {
+          "groups": note.content.authorids,
+          "subject": "Confirmation of your submission to <<SHORT_PHRASE>>: \"" + note.content.title + "\".",
+          "message": `Your submission to <<SHORT_PHRASE>> has been posted.\n\nTitle: `+note.content.title+`\n\nAbstract: `+note.content.abstract+`\n\nTo view the note, click here: `+baseUrl+`/forum?id=` + savedNote.forum
+      };
+
+      var paperGroup = {
+        id: CONFERENCE_ID + '/Paper' + savedNote.number,
+        signatures: [CONFERENCE_ID],
+        writers: [CONFERENCE_ID],
+        members: [],
+        readers: [CONFERENCE_ID],
+        signatories: []
+      };
+      return or3client.or3request(or3client.grpUrl, paperGroup, 'POST', token)
+      .then(savedPaperGroup => {
+
+        var reviewerGroupId = savedPaperGroup.id + '/Reviewers';
+        var areachairGroupId = savedPaperGroup.id + '/Area_Chair';
+
+        var authorGroupId = savedPaperGroup.id + '/Authors';
+        var authorGroup = {
+          id: authorGroupId,
+          signatures: [CONFERENCE_ID],
+          writers: [CONFERENCE_ID],
+          members: note.content.authorids.concat(note.signatures),
+          readers: [CONFERENCE_ID, PROGRAM_CHAIRS, authorGroupId],
+          signatories: [authorGroupId]
+        };
+
+        var withdrawPaperInvitation = {
+          id: CONFERENCE_ID + '/-/Paper' + savedNote.number + '/Withdraw_Paper',
+          signatures: [CONFERENCE_ID],
+          writers: [CONFERENCE_ID],
+          invitees: [authorGroupId],
+          noninvitees: [],
+          readers: ['everyone'],
+          reply: {
+            forum: savedNote.id,
+            referent: savedNote.id,
+            signatures: invitation.reply.signatures,
+            writers: invitation.reply.writers,
+            readers: invitation.reply.readers,
+            content: {
+              withdrawal: {
+                description: 'Confirm your withdrawal',
+                order: 1,
+                'value-radio': ['Confirmed'],
+                required: true
+              }
+            }
+          }
+        }
+
+        var publicCommentInvitation = {
+          id: CONFERENCE_ID + '/-/Paper' + savedNote.number + '/Public_Comment',
+          signatures: [CONFERENCE_ID],
+          writers: [CONFERENCE_ID],
+          invitees: ['~'],
+          noninvitees: [authorGroupId, reviewerGroupId, areachairGroupId],
+          readers: ['everyone'],
+          reply: {
+            forum: savedNote.id,
+            replyto: null,
+            readers: {
+              description: 'The users who will be allowed to read the above content.',
+              'values-dropdown': ['everyone', REVIEWERS, AREA_CHAIRS, PROGRAM_CHAIRS]
+            },
+            signatures: {
+              description: 'How your identity will be displayed with the above content.',
+              'values-regex': '~.*|\\(anonymous\\)'
+            },
+            writers: {
+              'values-regex': '~.*|\\(anonymous\\)'
+            },
+            content:{
+              title: {
+                order: 0,
+                'value-regex': '.{1,500}',
+                description: 'Brief summary of your comment.',
+                required: true
+              },
+              comment: {
+                order: 1,
+                'value-regex': '[\\S\\s]{1,5000}',
+                description: 'Your comment or reply.',
+                required: true
+              }
+            }
+          }
+        }
+
+        var officialCommentInvitation = {
+          id: CONFERENCE_ID + '/-/Paper' + savedNote.number + '/Official_Comment',
+          signatures: [CONFERENCE_ID],
+          writers: [CONFERENCE_ID],
+          invitees: [reviewerGroupId, authorGroupId, areachairGroupId, PROGRAM_CHAIRS],
+          readers: ['everyone'],
+          reply: {
+            forum: savedNote.id,
+            replyto: null,
+            readers: {
+              description: 'The users who will be allowed to read the above content.',
+              'values-dropdown': ['everyone', REVIEWERS, AREA_CHAIRS, PROGRAM_CHAIRS]
+            },
+            signatures: {
+              description: 'How your identity will be displayed with the above content.',
+              'values-regex': [reviewerGroupId, authorGroupId, areachairGroupId, PROGRAM_CHAIRS].join('|')
+            },
+            writers: {
+              'values-regex': [reviewerGroupId, authorGroupId, areachairGroupId, PROGRAM_CHAIRS].join('|')
+            },
+            content:{
+              title: {
+                order: 0,
+                'value-regex': '.{1,500}',
+                description: 'Brief summary of your comment.',
+                required: true
+              },
+              comment: {
+                order: 1,
+                'value-regex': '[\\S\\s]{1,5000}',
+                description: 'Your comment or reply.',
+                required: true
+              }
+            }
+          }
+        }
+
+        var batchPromises = Promise.all([
+          or3client.or3request(or3client.grpUrl, authorGroup, 'POST', token),
+          or3client.or3request(or3client.inviteUrl, withdrawPaperInvitation, 'POST', token),
+          or3client.or3request(or3client.inviteUrl, publicCommentInvitation, 'POST', token),
+          or3client.or3request(or3client.inviteUrl, officialCommentInvitation, 'POST', token),
+          or3client.or3request(or3client.mailUrl, mail, 'POST', token)
+        ]);
+
+        return batchPromises
+        .then(savedGroups => {
+          var authorGroup = savedGroups[0];
+          savedNote.content = {
+            authors: ['Anonymous'],
+            authorids: [authorGroup.id],
+            _bibtex: getBibtex(note)
+          }
+          return or3client.or3request(or3client.notesUrl, savedNote, 'POST', token);
+        });
+      });
+    })
+    .then(result => done())
+    .catch(error => done(error));
+
+    return true;
+}
