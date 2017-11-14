@@ -46,73 +46,87 @@ if os.path.isfile(review_path) is False:
     print "Cannot locate review process function at:"+review_path
     sys.exit()
 
+def get_group(value):
+    group = None
+    try:
+        group = client.get_group(value)
+    except openreview.OpenReviewException as e:
+        # throw an error if it is something other than "not found"
+        if e[0][0]['type'] != 'Not Found':
+            print "OpenReviewException: {0}".format(e)
+            raise e
+    return group
+
 submissions = client.get_notes(invitation=config.SUBMISSION)
 for paper in submissions:
     paper_num = str(paper.number)
     paperinv = config.CONF + '/-/Paper' + paper_num
-    print("Adding groups for Paper"+ paper_num)
 
-    ## Paper Group
     paperGroup = config.CONF + '/Paper' + paper_num
-    client.post_group(openreview.Group(
-        id=paperGroup,
-        signatures=[config.CONF],
-        writers=[config.CONF],
-        members=[],
-        readers=['everyone'],
-        signatories=[]))
+    # only add groups for new papers - specifically don't want to overwrite Reviewers.
+    if get_group(paperGroup) == None:
+        print("Adding groups for Paper"+ paper_num)
 
-    ## Author group
-    authorGroup = paperGroup + '/Authors'
-    client.post_group(openreview.Group(
-        id=authorGroup,
-        signatures=[config.CONF],
-        writers=[config.CONF],
-        members=paper.content['authorids'],
-        readers=[config.CONF, config.PROGRAM_CHAIRS, authorGroup],
-        signatories=[]))
+        ## Paper Group
+        client.post_group(openreview.Group(
+            id=paperGroup,
+            signatures=[config.CONF],
+            writers=[config.CONF],
+            members=[],
+            readers=['everyone'],
+            signatories=[]))
 
-    ## Reviewer group - people that can see the review invitation
-    reviewerGroup = paperGroup + '/Reviewers'
-    client.post_group(openreview.Group(
-        id=reviewerGroup,
-        signatures=[config.CONF],
-        writers=[config.CONF],
-        members=[],
-        readers=[config.CONF, config.PROGRAM_CHAIRS, reviewerGroup],
-        signatories=[]))
+        ## Author group
+        authorGroup = paperGroup + '/Authors'
+        client.post_group(openreview.Group(
+            id=authorGroup,
+            signatures=[config.CONF],
+            writers=[config.CONF],
+            members=paper.content['authorids'],
+            readers=[config.CONF, config.PROGRAM_CHAIRS, authorGroup],
+            signatories=[]))
 
-    ## NonReviewers - people that aren't allowed to see the reviews.
-    # Used to prevent reviewers from seeing other reviews of that paper
-    # until their review is complete.
-    nonReviewerGroup = reviewerGroup + '/NonReaders'
-    client.post_group(openreview.Group(
-        id=nonReviewerGroup,
-        signatures=[config.CONF],
-        writers=[config.CONF],
-        members=[],
-        readers=[config.CONF, config.PROGRAM_CHAIRS],
-        signatories=[]))
-    ## review invitation
-    review_reply = {
-        'forum':paper.id,
-        'replyto':paper.id,
-        'writers':{'values-regex': paperGroup + '/AnonReviewer[0-9]+'},
-        'signatures':{'values-regex': paperGroup + '/AnonReviewer[0-9]+'},
-        'readers':{
-            'values': [config.CONF, config.PROGRAM_CHAIRS, reviewerGroup, authorGroup],
-            'description': 'The users who will be allowed to read the above content.'
-        },
-        'nonreaders':{
-            'values': [nonReviewerGroup]},
-        'content':config.review_content
-    }
-    client.post_invitation(openreview.Invitation(paperinv + '/Official/Review',
-                                                 signatures=[config.CONF],
-                                                 writers=[config.CONF],
-                                                 invitees=[paperGroup + '/Reviewers'],
-                                                 noninvitees=[],
-                                                 readers=['everyone'],
-                                                 process=review_path,
-                                                 duedate=config.REVIEW_DUE_TIMESTAMP,
-                                                 reply=review_reply))
+        ## Reviewer group - people that can see the review invitation
+        reviewerGroup = paperGroup + '/Reviewers'
+        client.post_group(openreview.Group(
+            id=reviewerGroup,
+            signatures=[config.CONF],
+            writers=[config.CONF],
+            members=[],
+            readers=[config.CONF, config.PROGRAM_CHAIRS, reviewerGroup],
+            signatories=[]))
+
+        ## NonReviewers - people that aren't allowed to see the reviews.
+        # Used to prevent reviewers from seeing other reviews of that paper
+        # until their review is complete.
+        nonReviewerGroup = reviewerGroup + '/NonReaders'
+        client.post_group(openreview.Group(
+            id=nonReviewerGroup,
+            signatures=[config.CONF],
+            writers=[config.CONF],
+            members=[],
+            readers=[config.CONF, config.PROGRAM_CHAIRS],
+            signatories=[]))
+        ## review invitation
+        review_reply = {
+            'forum':paper.id,
+            'replyto':paper.id,
+            'writers':{'values-regex': paperGroup + '/AnonReviewer[0-9]+'},
+            'signatures':{'values-regex': paperGroup + '/AnonReviewer[0-9]+'},
+            'readers':{
+                'values': [config.CONF, config.PROGRAM_CHAIRS, reviewerGroup, authorGroup],
+                'description': 'The users who will be allowed to read the above content.'
+            },
+            'nonreaders':{
+                'values': [nonReviewerGroup]},
+            'content':config.review_content
+        }
+        client.post_invitation(openreview.Invitation(paperinv + '/Official/Review',
+                                                     signatures=[config.CONF],
+                                                     writers=[config.CONF],
+                                                     invitees=[paperGroup + '/Reviewers'],
+                                                     noninvitees=[],
+                                                     readers=['everyone'],
+                                                     process=review_path,
+                                                     duedate=config.REVIEW_DUE_TIMESTAMP,
+                                                     reply=review_reply))

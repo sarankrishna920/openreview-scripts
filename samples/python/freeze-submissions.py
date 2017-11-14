@@ -34,15 +34,10 @@ if os.path.isfile(config_path+"config.py") is False:
 sys.path.insert(0, config_path)
 import config
 
-
-###### update submission invite to allow setting writers set to []
-# still allows new submissions that can't be edited
-# the duedate determines whether or not new submissions can be added
-invite = client.get_invitation(config.SUBMISSION)
-invite.reply['writers']['values-regex'] = '(~.*)?'
-client.post_invitation(invite)
-
+## turn off revision for each paper
 submissions = client.get_notes(invitation=config.SUBMISSION)
 for paper in submissions:
-    paper.writers = []
-    client.post_note(paper)
+    invite_name = config.CONF + '/-/Paper'+note.number+'/Add/Revision',
+    invite = client.get_invitation(invite_name)
+    invite.duedate = 0
+    client.post_invitation(invite)

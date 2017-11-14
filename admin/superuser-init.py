@@ -142,5 +142,11 @@ for g in sorted([g for g in groups]):
 # add admin group to the conference members
 client.add_members_to_group(groups[conference_group_id], conference_group_id + '/Admin')
 
+## insert conference in host group
+top_level = client.get_group("host")
+if conference_group_id not in top_level.members:
+    top_level.members.insert(0, conference_group_id)
+    client.post_group(top_level)
+
 
 

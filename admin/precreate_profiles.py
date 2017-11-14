@@ -95,6 +95,7 @@ def get_or_create_profile(client, email, first, last, allow_duplicates=False, ve
             return tilde
         else:
             print "Duplicates not allowed: %s" % tilderesponse.json()['username']
+            return email
     else:
         if verbose: print "tilde groups exist for email %s" % email
         return profile_by_email_response.json()['profile']['id']
@@ -144,7 +145,7 @@ if __name__ == '__main__':
         group_id = args.group if args.group else raw_input("Please enter the full path of the group that you would like to add these members to: ")
 
         group = client.get_group(group_id)
-
+        print "Add Members {0} to {1}".format(group_id, profiles)
         client.add_members_to_group(group, profiles)
 
         print "Profiles added as members of group %s" % group.id
