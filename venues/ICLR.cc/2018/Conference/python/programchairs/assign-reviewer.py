@@ -58,15 +58,32 @@ paper_number = args.paper
 reviewer_to_remove = args.remove
 reviewer_to_add = args.add
 
-if reviewer_to_remove and '@' in reviewer_to_remove:
-    reviewer_to_remove = reviewer_to_remove.lower()
+if reviewer_to_remove:
+    if '@' in reviewer_to_remove:
+        reviewer_to_remove = reviewer_to_remove.lower()
+    reviewer_to_remove_group_ids = [i.id for i in client.get_groups(member=reviewer_to_remove)]
+    try:
+        reviewer_to_remove_profile = client.get_profile(reviewer_to_remove)
+        reviewer_to_remove = reviewer_to_remove_profile.id
+    except openreview.OpenReviewException:
+        pass
 
-if reviewer_to_add and '@' in reviewer_to_add:
-    reviewer_to_add = reviewer_to_add.lower()
+if reviewer_to_add:
+    if '@' in reviewer_to_add:
+        reviewer_to_add = reviewer_to_add.lower()
+    reviewer_to_add_groups = client.get_groups(member=reviewer_to_add)
+
+    try:
+        reviewer_to_add_profile = client.get_profile(reviewer_to_add)
+        reviewer_to_add = reviewer_to_add_profile.id
+    except openreview.OpenReviewException:
+        pass
 
 reviewers_group = client.get_group('ICLR.cc/2018/Conference/Paper{0}/Reviewers'.format(paper_number))
 anonreviewer_groups = client.get_groups(id = 'ICLR.cc/2018/Conference/Paper{0}/AnonReviewer.*'.format(paper_number))
 empty_anonreviewer_groups = sorted([ a for a in anonreviewer_groups if a.members == [] ], key=lambda x: x.id)
+
+for i in anonreviewer_groups: print i.id, i.members
 
 def get_domains(email):
     full_domain = email.split('@')[1]
@@ -76,7 +93,6 @@ def get_domains(email):
     return valid_domains
 
 def get_user_conflicts(profile_or_email):
-
     domain_conflicts = set()
     relation_conflicts = set()
     relation_conflicts.update([profile_or_email])
@@ -141,12 +157,24 @@ def next_anonreviewer_id(empty_anonreviewer_groups):
 
 
 if reviewer_to_remove:
-    assigned_anonreviewer_groups = [a for a in anonreviewer_groups if reviewer_to_remove in a.members]
+    assigned_anonreviewer_groups = [a for a in anonreviewer_groups if a.id in reviewer_to_remove_group_ids]
+    print "assigned anonreviewer groups: ", assigned_anonreviewer_groups
     for anonreviewer_group in assigned_anonreviewer_groups:
-        print "removing {0} from {1}".format(reviewer_to_remove, anonreviewer_group.id)
-        client.remove_members_from_group(anonreviewer_group, reviewer_to_remove)
-        empty_anonreviewer_groups.append(anonreviewer_group)
-        empty_anonreviewer_groups = sorted(empty_anonreviewer_groups, key=lambda x: x.id)
+        print "TEST: anonreviewer_group ", anonreviewer_group.id
+        for m in anonreviewer_group.members:
+            try:
+                member_profile = client.get_profile(m)
+                member_id = member_profile.id
+            except openreview.OpenReviewException:
+                member_id = m
+            if member_id == reviewer_to_remove:
+                print "removing {0} from {1}".format(reviewer_to_remove, anonreviewer_group.id)
+                anonreviewer_group = client.remove_members_from_group(anonreviewer_group, reviewer_to_remove)
+
+        if len(anonreviewer_group.members) == 0:
+            empty_anonreviewer_groups.append(anonreviewer_group)
+            empty_anonreviewer_groups = sorted(empty_anonreviewer_groups, key=lambda x: x.id)
+
     print "removing {0} from {1}".format(reviewer_to_remove, reviewers_group.id)
     client.remove_members_from_group(reviewers_group, reviewer_to_remove)
 
