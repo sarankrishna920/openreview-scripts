@@ -26,16 +26,18 @@ context = ET.iterparse(args.file, events = ('end', ), parser=parser)
 count = 0
 
 def post_note(elem):
-	note = openreview.Note(content = { 'dblp': elem }, invitation = config.SUBMISSION, readers = ['everyone'], writers = [config.CONF], signatures = [config.CONF])
+	print elem.get('key')
+	note = openreview.Note(content = { 'dblp': ElementTree.tostring(elem, encoding='utf8', method='xml') }, invitation = config.SUBMISSION, readers = ['everyone'], writers = [config.CONF], signatures = [config.CONF])
 	saved_note = client.post_note(note)
-	print saved_note.id
+	print elem.get('key') + ',' + saved_note.id
 
 p = Pool(10)
 elem_buffer = []
 for event, elem in context:
 
 	if elem.tag in ['article', 'inproceedings', 'proceedings', 'book', 'incollection', 'phdthesis', 'mastersthesis', 'www', 'person', 'data']:
-		elem_buffer.append(ElementTree.tostring(elem, encoding='utf8', method='xml'))
+
+		elem_buffer.append(elem)
 
 		#post_note(ElementTree.tostring(elem, encoding='utf8', method='xml'))
 		if len(elem_buffer) > 100000:
