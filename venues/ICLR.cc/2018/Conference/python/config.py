@@ -523,7 +523,7 @@ acceptance_decision_params = {
                 'required': True
             },
             'decision': {
-                'order': 3,
+                'order': 2,
                 'value-dropdown': [
                     'Accept (Oral)',
                     'Accept (Poster)',
@@ -531,6 +531,12 @@ acceptance_decision_params = {
                     'Invite to Workshop Track'
                 ],
                 'required': True
+            },
+            'comment': {
+                'order': 3,
+                'value-regex': '[\\S\\s]{1,5000}',
+                'description': '(optional) Comment on this decision.',
+                'required': False
             }
         }
     }
