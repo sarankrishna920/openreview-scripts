@@ -31,7 +31,7 @@ def post_with_retries(note):
 	while response is None and count < 5:
 		try:
 			response = client.post_note(note)
-		except requests.exceptions.ConnectionError:
+		except requests.exceptions.RequestException:
 			count += 1
 
 	if not response:
