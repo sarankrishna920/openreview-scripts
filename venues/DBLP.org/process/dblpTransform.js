@@ -1,4 +1,5 @@
 function (note) {
+  var removeDigitsRegEx = /\s\d{4}$/;
 	var et = require('elementtree');
 	var XML = et.XML;
   var tree = new et.ElementTree(XML(note.content.dblp));
@@ -24,7 +25,7 @@ function (note) {
   var _authors = tree.findall('./author');
   var authors = [];
   _authors.forEach( function (author) {
-    authors.push(author.text);
+    authors.push(author.replace(removeDigitsRegEx, ''));
   });
 
   if (authors.length > 0) {
