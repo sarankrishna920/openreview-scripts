@@ -25,7 +25,7 @@ function (note) {
   var _authors = tree.findall('./author');
   var authors = [];
   _authors.forEach( function (author) {
-    authors.push(author.replace(removeDigitsRegEx, ''));
+    authors.push(author.text.replace(removeDigitsRegEx, ''));
   });
 
   if (authors.length > 0) {

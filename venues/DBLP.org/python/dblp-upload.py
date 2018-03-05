@@ -44,7 +44,7 @@ def post_note(elem):
 	saved_note = post_with_retries(note)
 	if saved_note.invitation != config.SUBMISSION:
 		print 'Existent submission', saved_note.id
-	else
+	else:
 		print elem.get('key') + ',' + saved_note.id
 
 p = Pool(4)
