@@ -69,7 +69,7 @@ function load() {
     tauthor: true
   });
 
-  var assignedNotesP = Webfield.api.getSubmissions(WILDCARD_INVITATION, {
+  var assignedNotePairsP = Webfield.api.getSubmissions(WILDCARD_INVITATION, {
     pageSize: 100,
     invitee: true,
     duedate: true
@@ -78,8 +78,8 @@ function load() {
   var userGroupsP;
   var authorNotesP;
   if (!user || _.startsWith(user.id, 'guest_')) {
-    userGroupsP = Promise.resolve([]);
-    authorNotesP = Promise.resolve([]);
+    userGroupsP = $.Deferred().resolve([]);
+    authorNotesP = $.Deferred().resolve([]);
 
   } else {
     userGroupsP = Webfield.get('/groups', {member: user.id}).then(function(result) {
@@ -101,10 +101,26 @@ function load() {
 
   var tagInvitationsP = Webfield.api.getTagInvitations(BLIND_INVITATION);
 
-  return $.when(
-    notesP, submittedNotesP, assignedNotesP, userGroupsP,
-    authorNotesP, tagInvitationsP, withdrawnNotesP
-  );
+  return userGroupsP
+  .then(function(userGroups) {
+
+    var assignedPaperNumbers = getPaperNumbersfromGroups(userGroups);
+    var assignedNotesP = $.Deferred().resolve([]);
+
+    if (assignedPaperNumbers.length) {
+        assignedNotesP = Webfield.api.getSubmissions(BLIND_INVITATION, {
+        pageSize: PAGE_SIZE,
+        number: assignedPaperNumbers.join()
+      });
+    }
+
+
+    return $.when(
+      notesP, submittedNotesP, assignedNotePairsP, assignedNotesP, userGroups,
+      authorNotesP, tagInvitationsP, withdrawnNotesP
+    );
+  });
+
 }
 
 
@@ -196,7 +212,7 @@ function renderConferenceTabs() {
   });
 }
 
-function renderContent(notes, submittedNotes, assignedNotePairs, userGroups, authorNotes, tagInvitations, withdrawnNotes) {
+function renderContent(notes, submittedNotes, assignedNotePairs, assignedNotes, userGroups, authorNotes, tagInvitations, withdrawnNotes) {
   var data, commentNotes;
 
   // if (_.isEmpty(userGroups)) {
@@ -225,9 +241,6 @@ function renderContent(notes, submittedNotes, assignedNotePairs, userGroups, aut
   });
 
   var assignedPaperNumbers = getPaperNumbersfromGroups(userGroups);
-  assignedNotes = assignedNotePairs.map(function(pair) {
-    return pair.replytoNote;
-  });
   if (assignedPaperNumbers.length !== assignedNotes.length) {
     console.warn('WARNING: The number of assigned notes returned by API does not ' +
       'match the number of assigned note groups the user is a member of.');

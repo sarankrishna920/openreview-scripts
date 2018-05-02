@@ -33,6 +33,7 @@ REVIEWERS_INVITED = REVIEWERS + '/Invited'
 REVIEWERS_DECLINED = REVIEWERS + '/Declined'
 REVIEWERS_EMAILED = REVIEWERS + '/Emailed'
 
+AUTHORS_PLUS = AUTHORS + '_and_Higher'
 REVIEWERS_PLUS = REVIEWERS + '_and_Higher'
 AREA_CHAIRS_PLUS = AREA_CHAIRS + '_and_Higher'
 
@@ -282,7 +283,7 @@ public_comment_params = {
         'replyto': None,
         'readers': {
             'description': 'The users who will be allowed to read the above content.',
-            'value-dropdown': ['everyone', REVIEWERS_PLUS, AREA_CHAIRS_PLUS, PROGRAM_CHAIRS]
+            'value-dropdown': ['everyone', AUTHORS_PLUS, REVIEWERS_PLUS, AREA_CHAIRS_PLUS, PROGRAM_CHAIRS]
         },
         'signatures': {
             'description': 'How your identity will be displayed with the above content.',
@@ -328,7 +329,7 @@ official_comment_params = {
         'replyto': None,
         'readers': {
             'description': 'The users who will be allowed to read the above content.',
-            'value-dropdown': ['everyone', REVIEWERS_PLUS, AREA_CHAIRS_PLUS, PROGRAM_CHAIRS]
+            'value-dropdown': ['everyone', AUTHORS_PLUS, REVIEWERS_PLUS, AREA_CHAIRS_PLUS, PROGRAM_CHAIRS]
         },
         'signatures': {
             'description': 'How your identity will be displayed with the above content.',
@@ -453,6 +454,7 @@ meta_review_params = {
             'values': [AREA_CHAIRS_PLUS],
             'description': 'The users who will be allowed to read the above content.'
         },
+        'nonreaders': {},
         'content': {
             'title': {
                 'order': 1,
@@ -490,6 +492,56 @@ meta_review_params = {
         }
     }
 };
+
+"""
+/-/Acceptance_Decision
+"""
+acceptance_decision_params = {
+    'readers': ['everyone'],
+    'writers': [CONF],
+    'invitees': [],
+    'signatures': [CONF],
+    'reply': {
+        'forum': None,
+        'replyto': None,
+        'invitation': BLIND_SUBMISSION,
+        'readers': {
+            'description': 'The users who will be allowed to read the above content.',
+            'value-dropdown': ['ICLR.cc/2018/Conference/Program_Chairs', 'everyone']
+        },
+        'signatures': {
+            'description': 'How your identity will be displayed with the above content.',
+            'values': [PROGRAM_CHAIRS]
+        },
+        'writers': {
+            'values': [PROGRAM_CHAIRS]
+        },
+        'content': {
+            'title': {
+                'order': 1,
+                'value': 'ICLR 2018 Conference Acceptance Decision',
+                'required': True
+            },
+            'decision': {
+                'order': 2,
+                'value-dropdown': [
+                    'Accept (Oral)',
+                    'Accept (Poster)',
+                    'Reject',
+                    'Invite to Workshop Track'
+                ],
+                'required': True
+            },
+            'comment': {
+                'order': 3,
+                'value-regex': '[\\S\\s]{0,5000}',
+                'description': '(optional) Comment on this decision.',
+                'required': False
+            },
+        }
+    }
+}
+
 
 """
 /-/Paper[0-9]+/Withdraw_Paper

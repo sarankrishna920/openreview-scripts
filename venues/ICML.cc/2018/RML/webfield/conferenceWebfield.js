@@ -7,11 +7,25 @@
 // ------------------------------------
 
 // Constants
-var CONFERENCE = "NIPS.cc/2017/Workshop/Autodiff";
-var INVITATION = CONFERENCE + '/-/Submission';
-var SUBJECT_AREAS = [
-  // Add conference specific subject areas here
-];
+//<CONFERENCE>
+//<AREA_CHAIRS>
+//<SUBTITLE>
+//<TITLE>
+//<RECRUIT_REVIEWERS>
+//<PROGRAM_CHAIRS>
+//<DEADLINE>
+//<DATE>
+//<WEBSITE>
+//<REVIEWERS>
+//<LOCATION>
+//<SUBMISSION_INVITATION>
+//<CONFERENCE_REGEX>
+//<WILDCARD_INVITATION>
+//<SUBJECT_AREAS>
+//<INSTRUCTIONS>
+
+
+
 var BUFFER = 1000 * 60 * 30;  // 30 minutes
 var PAGE_SIZE = 50;
 
@@ -28,7 +42,7 @@ function main() {
   renderConferenceHeader();
 
   load().then(render).then(function() {
-    Webfield.setupAutoLoading(INVITATION, PAGE_SIZE, paperDisplayOptions);
+    Webfield.setupAutoLoading(SUBMISSION_INVITATION, PAGE_SIZE, paperDisplayOptions);
   });
 }
 
@@ -36,13 +50,13 @@ function main() {
 // never changes, put it in its own function
 function renderConferenceHeader() {
   Webfield.ui.venueHeader({
-    title: "NIPS 2017 Autodiff Workshop",
-    subtitle: "The future of gradient-based machine learning software and techniques",
-    location: "Long Beach, California",
-    date: "December 9, 2017",
-    website: "https://autodiff-workshop.github.io/",
-    instructions: null,  // Add any custom instructions here. Accepts HTML
-    deadline: "Submission Deadline: October 28, 2017 at midnight UTC"
+    title: TITLE,
+    subtitle: SUBTITLE,
+    location: LOCATION,
+    date: DATE,
+    website: WEBSITE,
+    instructions: INSTRUCTIONS,  // Add any custom instructions here. Accepts HTML
+    deadline: DEADLINE
   });
 
   Webfield.ui.spinner('#notes');
@@ -51,8 +65,8 @@ function renderConferenceHeader() {
 // Load makes all the API calls needed to get the data to render the page
 // It returns a jQuery deferred object: https://api.jquery.com/category/deferred-object/
 function load() {
-  var invitationP = Webfield.api.getSubmissionInvitation(INVITATION, {deadlineBuffer: BUFFER});
-  var notesP = Webfield.api.getSubmissions(INVITATION, {pageSize: PAGE_SIZE});
+  var invitationP = Webfield.api.getSubmissionInvitation(SUBMISSION_INVITATION, {deadlineBuffer: BUFFER});
+  var notesP = Webfield.api.getSubmissions(SUBMISSION_INVITATION, {pageSize: PAGE_SIZE});
 
   return $.when(invitationP, notesP);
 }
@@ -68,7 +82,7 @@ function render(invitation, notes) {
       onNoteCreated: function() {
         // Callback funtion to be run when a paper has successfully been submitted (required)
         load().then(render).then(function() {
-          Webfield.setupAutoLoading(INVITATION, PAGE_SIZE, paperDisplayOptions);
+          Webfield.setupAutoLoading(SUBMISSION_INVITATION, PAGE_SIZE, paperDisplayOptions);
         });
       }
     });
@@ -81,14 +95,13 @@ function render(invitation, notes) {
     displayOptions: paperDisplayOptions,
     search: {
       enabled: true,
-      subjectAreas: SUBJECT_AREAS,
       onResults: function(searchResults) {
         Webfield.ui.searchResults(searchResults, paperDisplayOptions);
         Webfield.disableAutoLoading();
       },
       onReset: function() {
         Webfield.ui.searchResults(notes, paperDisplayOptions);
-        Webfield.setupAutoLoading(INVITATION, PAGE_SIZE, paperDisplayOptions);
+        Webfield.setupAutoLoading(SUBMISSION_INVITATION, PAGE_SIZE, paperDisplayOptions);
       }
     }
   });

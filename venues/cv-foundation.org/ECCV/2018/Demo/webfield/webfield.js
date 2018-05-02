@@ -7,8 +7,8 @@
 // ------------------------------------
 
 // Constants
-var CONFERENCE = "NIPS.cc/2017/Workshop/MLITS";
-var INVITATION = CONFERENCE + '/-/Submission';
+var CONFERENCE_ID = 'cv-foundation.org/ECCV/2018/Demo';
+var INVITATION = CONFERENCE_ID + '/-/Submission';
 var SUBJECT_AREAS = [
   // Add conference specific subject areas here
 ];
@@ -23,7 +23,7 @@ var paperDisplayOptions = {
 
 // Main is the entry point to the webfield code and runs everything
 function main() {
-  Webfield.ui.setup('#group-container', CONFERENCE);  // required
+  Webfield.ui.setup('#group-container', CONFERENCE_ID);  // required
 
   renderConferenceHeader();
 
@@ -36,13 +36,13 @@ function main() {
 // never changes, put it in its own function
 function renderConferenceHeader() {
   Webfield.ui.venueHeader({
-    title: "NIPS 2017 MLITS Workshop",
-    subtitle: "Machine Learning for Intelligent Transportation Systems",
-    location: "Long Beach, California",
-    date: "December 9, 2017",
-    website: "https://nips.cc/Conferences/2017/Schedule?showEvent=8755",
+    title: 'ECCV 2018 Demo',
+    subtitle: '<<SUBTITLE>>',
+    location: '<<LOCATION>>',
+    date: '<<EVENT_DATE>>',
+    website: '<<URL>>',
     instructions: null,  // Add any custom instructions here. Accepts HTML
-    deadline: "Submission Deadline: October 21, 2017 at midnight GMT"
+    deadline: "<<DEADLINE>>"
   });
 
   Webfield.ui.spinner('#notes');
