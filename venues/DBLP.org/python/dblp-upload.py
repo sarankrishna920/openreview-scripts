@@ -50,11 +50,11 @@ def post_note(elem):
 p = Pool(4)
 elem_buffer = []
 for event, elem in context:
-
 	if elem.tag in ['article', 'inproceedings', 'proceedings', 'book', 'incollection', 'phdthesis', 'mastersthesis', 'person', 'data']:
-
 		elem_buffer.append(elem)
 
 		if len(elem_buffer) > 1000:
 			p.map(post_note, elem_buffer[:])
 			elem_buffer = []
+		else:
+			post_note(elem)
